@@ -1,10 +1,12 @@
 FROM node:8.4.0
+ENV NGINX_HOME /usr/local/nginx
+ENV NGINX_VERSION 1.13.4
 WORKDIR /app
-RUN curl -SLO http://nginx.org/download/nginx-1.13.4.tar.gz \
-    && tar zxvf nginx-1.13.4.tar.gz -C /app \
-    && /app/nginx-1.13.4/configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module \
-    && /app/nginx-1.13.4/make install
-RUN ln -sf /usr/local/nginx/sbin/nginx /usr/local/bin/nginx \
-    && rm -rf /app
+RUN curl -SLO http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz \
+    && tar -xzf nginx-$NGINX_VERSION.tar.gz -C . --strip-components=1 \
+    && ./configure --prefix=$NGINX_HOME --with-http_stub_status_module --with-http_ssl_module \
+    && make install \
+    && rm -rf /app \
+    && ln -sf $NGINX_HOME/sbin/nginx /usr/local/bin/nginx
 EXPOSE 80
-CMD ["nginx"]
+CMD ["nginx", "-g", "daemon off;"]
